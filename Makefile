@@ -1,7 +1,7 @@
 PYTHON ?= python3
 COMPLIANCE_RUNNER := PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m tests.compliance.runner
 
-.PHONY: compliance test-mcp-contract test-tool-golden test-security test-e2e test-codex-compat dogfood-mcp report
+.PHONY: compliance test-mcp-contract test-tool-golden test-security test-e2e test-codex-compat dogfood-mcp benchmark-smoke report
 
 compliance:
 	$(COMPLIANCE_RUNNER) --suite all --report
@@ -23,6 +23,9 @@ test-codex-compat:
 
 dogfood-mcp:
 	$(COMPLIANCE_RUNNER) --suite dogfood --report
+
+benchmark-smoke:
+	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) benchmarks/swebench/run_smoke.py
 
 report:
 	$(COMPLIANCE_RUNNER) --write-report-only
