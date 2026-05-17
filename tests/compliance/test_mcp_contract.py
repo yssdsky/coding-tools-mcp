@@ -223,6 +223,27 @@ class MCPContractTests(ComplianceTestCase):
         self.assertEqual(body.get("error", {}).get("code"), -32600)
         self.assertEqual(body.get("error", {}).get("data", {}).get("max_items"), MAX_JSON_RPC_BATCH_ITEMS)
 
+    def test_http_origin_policy_requires_exact_loopback_host(self) -> None:
+        body = b'{"jsonrpc":"2.0","id":1,"method":"ping","params":{}}'
+        for origin in ("http://localhost:3000", "http://127.0.0.1:3000", "http://[::1]:3000"):
+            with self.subTest(origin=origin):
+                status, response = self.raw_http_post(body, headers={"Origin": origin})
+                self.assertEqual(status, 200)
+                self.assertEqual(response.get("result"), {})
+
+        denied_origins = (
+            "http://localhost.evil.example",
+            "http://127.0.0.1.evil.example",
+            "https://example.com",
+            "null",
+        )
+        for origin in denied_origins:
+            with self.subTest(origin=origin):
+                status, response = self.raw_http_post(body, headers={"Origin": origin})
+                self.assertEqual(status, 403)
+                self.assertEqual(response.get("error", {}).get("code"), -32600)
+                self.assertIn("Origin denied", response.get("error", {}).get("message", ""))
+
     def test_http_rejects_malformed_json_rpc_envelopes_and_params(self) -> None:
         cases = [
             ({"id": 1, "method": "ping", "params": {}}, -32600),
@@ -448,6 +469,7 @@ class MCPContractTests(ComplianceTestCase):
         *,
         content_type: str = "application/json",
         content_length: int | str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> tuple[int, dict[str, Any]]:
         self.assertIsNotNone(self.client.url)
         parsed = urllib.parse.urlparse(str(self.client.url))
@@ -460,6 +482,8 @@ class MCPContractTests(ComplianceTestCase):
             connection.putheader("Content-Type", content_type)
             connection.putheader("MCP-Protocol-Version", "2025-06-18")
             connection.putheader("Content-Length", str(len(body) if content_length is None else content_length))
+            for name, value in (headers or {}).items():
+                connection.putheader(name, value)
             connection.endheaders()
             if body:
                 connection.send(body)

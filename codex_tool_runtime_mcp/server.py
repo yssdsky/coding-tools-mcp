@@ -19,6 +19,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.parse
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -122,6 +123,16 @@ def utc_now() -> str:
 
 def json_response_payload(payload: Any) -> bytes:
     return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def is_allowed_origin(origin: str) -> bool:
+    try:
+        parsed = urllib.parse.urlparse(origin)
+    except ValueError:
+        return False
+    if parsed.scheme not in {"http", "https"}:
+        return False
+    return parsed.hostname in {"localhost", "127.0.0.1", "::1"}
 
 
 def truncate_bytes(data: bytes, limit: int) -> tuple[str, bool]:
@@ -2218,7 +2229,7 @@ class MCPHandler(http.server.BaseHTTPRequestHandler):
             )
             return
         origin = self.headers.get("Origin")
-        if origin and not (origin.startswith("http://127.0.0.1") or origin.startswith("http://localhost")):
+        if origin and not is_allowed_origin(origin):
             self.send_json({"jsonrpc": "2.0", "error": {"code": -32600, "message": "Origin denied"}}, status=403)
             return
         raw_length = self.headers.get("Content-Length")
