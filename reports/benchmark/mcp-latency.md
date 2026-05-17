@@ -1,7 +1,7 @@
 # MCP Runtime Latency Benchmark
 
 - Conclusion: **PASS**
-- Endpoint: `http://127.0.0.1:35403/mcp`
+- Endpoint: `http://127.0.0.1:38489/mcp`
 - Iterations: `8`
 - Exec iterations: `4`
 - Warmup iterations: `2`
@@ -11,21 +11,21 @@
 
 | metric | samples | min ms | p50 ms | p95 ms | max ms |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `mcp.tools_list` | 8 | 0.942 | 1.06 | 1.133 | 1.141 |
-| `mcp.read_file` | 8 | 0.598 | 0.635 | 0.762 | 0.767 |
-| `mcp.search_text` | 8 | 60.903 | 64.047 | 70.773 | 71.299 |
-| `mcp.exec_command` | 4 | 46.752 | 47.041 | 47.106 | 47.107 |
-| `native.read_text` | 8 | 0.033 | 0.033 | 0.035 | 0.035 |
-| `native.search` | 8 | 3.952 | 4.15 | 4.417 | 4.433 |
-| `native.exec_python` | 4 | 24.93 | 25.068 | 25.875 | 26.008 |
+| `mcp.tools_list` | 8 | 1.06 | 1.105 | 1.153 | 1.156 |
+| `mcp.read_file` | 8 | 0.695 | 0.749 | 0.781 | 0.786 |
+| `mcp.search_text` | 8 | 57.91 | 58.48 | 64.569 | 66.713 |
+| `mcp.exec_command` | 4 | 46.787 | 47.428 | 48.128 | 48.173 |
+| `native.read_text` | 8 | 0.028 | 0.029 | 0.03 | 0.03 |
+| `native.search` | 8 | 3.92 | 4.44 | 4.667 | 4.692 |
+| `native.exec_python` | 4 | 24.011 | 24.67 | 26.58 | 26.855 |
 
 ## Native Baseline Comparison
 
 | operation | MCP p95 ms | native p95 ms | ratio |
 | --- | ---: | ---: | ---: |
-| `read_file` | 0.762 | 0.035 | 21.771 |
-| `search_text` | 70.773 | 4.417 | 16.023 |
-| `exec_command` | 47.106 | 25.875 | 1.821 |
+| `read_file` | 0.781 | 0.03 | 26.033 |
+| `search_text` | 64.569 | 4.667 | 13.835 |
+| `exec_command` | 48.128 | 26.58 | 1.811 |
 
 ## Failures
 
